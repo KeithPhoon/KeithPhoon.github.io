@@ -8,9 +8,10 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Share+Tech+Mono&family=Open+Sans:wght@400;600&display=swap');
 
         :root {
-            --bg-main: #ffffff;
-            --sidebar-grad-1: #0B1021;
-            --sidebar-grad-2: #1B2845;
+            /* 调整为半透明，实现毛玻璃效果 */
+            --bg-main: rgba(255, 255, 255, 0.90); 
+            --sidebar-grad-1: rgba(11, 16, 33, 0.85);
+            --sidebar-grad-2: rgba(27, 40, 69, 0.85);
             --neon-cyan: #00F0FF;
             --neon-blue: #0077FF;
             --neon-purple: #8A2BE2;
@@ -28,24 +29,55 @@
 
         body {
             font-family: 'Open Sans', sans-serif;
-            background-color: #0f172a; /* Dark background outside the resume */
+            background-color: #0f172a; 
             color: var(--text-main);
             font-size: 11.5px; 
             line-height: 1.6;
             padding: 20px;
             display: flex;
             justify-content: center;
+            position: relative; /* 为绝对定位的背景做准备 */
         }
 
-        /* A4 Page Container */
+        /* =========================================
+           静态高亮星系背景 (Static Bright Galaxy)
+           ========================================= */
+        .galaxy-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            /* 高清静态银河图片 */
+            background: url('https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=2500&auto=format&fit=crop') no-repeat center center;
+            background-size: cover;
+            z-index: -4;
+            /* 提高亮度和对比度，使其光亮璀璨 */
+            filter: brightness(1.6) contrast(1.15) saturate(1.2);
+        }
+
+        /* 轻微的暗色边缘遮罩，突出中心简历 */
+        .space-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, rgba(2, 6, 19, 0.5) 100%);
+            z-index: -3;
+            pointer-events: none;
+        }
+        /* ========================================= */
+
+        /* A4 Page Container with Glassmorphism */
         .resume-wrapper {
             width: 210mm;
             min-height: 297mm;
             background: var(--bg-main);
-            box-shadow: 0 0 40px rgba(0, 240, 255, 0.2);
+            /* 毛玻璃背景模糊效果 */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.25), 0 0 0 1px rgba(255,255,255,0.15);
             display: flex;
             position: relative;
             overflow: hidden;
+            border-radius: 8px; /* 增加圆角让悬浮感更强 */
+            z-index: 10;
         }
 
         /* --- SIDEBAR (Deep Space HUD Style) --- */
@@ -294,7 +326,7 @@
             width: 66%;
             padding: 40px 35px;
             position: relative;
-            background-color: #ffffff;
+            background-color: transparent; /* 改为透明透出玻璃效果 */
             /* Engineering blueprint grid */
             background-image: 
                 linear-gradient(var(--grid-color) 1px, transparent 1px),
@@ -390,17 +422,18 @@
         .timeline-item {
             position: relative;
             margin-bottom: 30px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.75); /* 卡片略微透明 */
             padding: 15px;
             border: 1px solid rgba(0, 119, 255, 0.2);
             border-radius: 4px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-            transition: transform 0.2s;
+            transition: transform 0.2s, background 0.3s;
         }
 
         .timeline-item:hover {
             transform: translateX(5px);
             border-color: var(--neon-cyan);
+            background: rgba(255, 255, 255, 0.95);
         }
 
         /* Glowing Timeline Node */
@@ -485,6 +518,43 @@
         }
 
         /* =========================================
+           📲 移动端响应式完美适配 (MOBILE RESPONSIVE)
+           ========================================= */
+        @media screen and (max-width: 850px) {
+            body { 
+                padding: 10px; 
+            }
+            .resume-wrapper { 
+                width: 100%; 
+                min-height: auto;
+                flex-direction: column; /* 核心：将左右两栏变为上下堆叠 */
+                border-radius: 8px;
+            }
+            .sidebar { 
+                width: 100%; 
+                border-right: none; 
+                border-bottom: 2px solid var(--neon-cyan); /* 底部加上蓝色发光分割线 */
+                padding: 30px 20px; 
+            }
+            .main-content { 
+                width: 100%; 
+                padding: 30px 20px; 
+            }
+            /* 修复被挤压的时间标签和公司名称 */
+            .job-header { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 10px; 
+            }
+            .job-date { 
+                align-self: flex-start; 
+            }
+            /* 缩小右侧背景装饰环的尺寸，防止其超出手机屏幕导致横向滚动 */
+            .mo-1 { width: 300px; height: 300px; top: -50px; right: -50px; }
+            .mo-2 { width: 400px; height: 400px; top: -100px; right: -100px; }
+        }
+
+        /* =========================================
            PRINT MEDIA QUERY (The Magic Part)
            Removes all flashy colors and animations 
            for perfectly clean, ink-saving printing.
@@ -494,14 +564,21 @@
                 background-color: #fff !important; 
                 margin: 0; padding: 0;
             }
+            /* 打印时隐藏星空背景和遮罩 */
+            .galaxy-bg, .space-overlay { display: none !important; }
+            
             .resume-wrapper { 
                 box-shadow: none; margin: 0; width: 100%; 
-                border: none;
+                border: none; border-radius: 0;
+                background: #fff !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
             }
             /* Reset Sidebar to Light colors */
             .sidebar {
                 background: #f0f4f8 !important;
                 border-right: 1px solid #ccc;
+                border-bottom: none !important;
                 color: #333 !important;
                 box-shadow: none;
             }
@@ -526,14 +603,24 @@
             .timeline::before { background: #ccc !important; box-shadow: none; }
             .timeline-item::before { border-color: #666; box-shadow: none; }
             
-            .job-date { background: #eee !important; color: #333 !important; box-shadow: none; }
+            .job-date { background: #eee !important; color: #333 !important; box-shadow: none; align-self: center; }
             .role { color: #333 !important; }
             .job-details li::before { color: #666 !important; }
             .job-details li strong { background: none; color: #000; }
+            
+            /* 打印时恢复为左右布局（确保A4纸效果） */
+            .resume-wrapper { flex-direction: row; }
+            .sidebar { width: 34%; border-right: 1px solid #ccc; }
+            .main-content { width: 66%; }
+            .job-header { flex-direction: row; align-items: center; }
         }
     </style>
 </head>
 <body>
+
+<!-- 静态高亮银河背景 -->
+<div class="galaxy-bg"></div>
+<div class="space-overlay"></div>
 
 <div class="resume-wrapper">
 
