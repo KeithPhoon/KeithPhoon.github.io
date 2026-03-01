@@ -8,7 +8,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Share+Tech+Mono&family=Open+Sans:wght@400;600&display=swap');
 
         :root {
-            /* 调整为半透明，实现毛玻璃效果 */
             --bg-main: rgba(255, 255, 255, 0.90); 
             --sidebar-grad-1: rgba(11, 16, 33, 0.85);
             --sidebar-grad-2: rgba(27, 40, 69, 0.85);
@@ -29,40 +28,97 @@
 
         body {
             font-family: 'Open Sans', sans-serif;
-            background-color: #0f172a; 
+            background-color: #050914; /* 加深底色让星空更明显 */
             color: var(--text-main);
             font-size: 11.5px; 
             line-height: 1.6;
             padding: 20px;
             display: flex;
             justify-content: center;
-            position: relative; /* 为绝对定位的背景做准备 */
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         /* =========================================
-           静态高亮星系背景 (Static Bright Galaxy)
+           背景层1: 缓慢巡航的高清银河底图
            ========================================= */
         .galaxy-bg {
             position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            /* 高清静态银河图片 */
+            top: -5%; left: -5%;
+            width: 110vw; height: 110vh;
             background: url('https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=2500&auto=format&fit=crop') no-repeat center center;
             background-size: cover;
             z-index: -4;
-            /* 提高亮度和对比度，使其光亮璀璨 */
-            filter: brightness(1.6) contrast(1.15) saturate(1.2);
+            filter: brightness(1.4) contrast(1.1) saturate(1.2);
+            animation: deep-space-pan 120s linear infinite alternate;
         }
 
-        /* 轻微的暗色边缘遮罩，突出中心简历 */
+        @keyframes deep-space-pan {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.15) translate(-2%, -2%); }
+        }
+
+        /* =========================================
+           背景层2: 3D 穿梭星空 Canvas 画布
+           ========================================= */
+        #starfield-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -3;
+            pointer-events: none; /* 让鼠标事件穿透画布作用于下方的按钮 */
+        }
+
+        /* 背景层3: 压暗遮罩，确保文字始终清晰 */
         .space-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, rgba(2, 6, 19, 0.5) 100%);
-            z-index: -3;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, rgba(2, 6, 19, 0.6) 100%);
+            z-index: -2;
             pointer-events: none;
+            transition: background 0.5s ease;
         }
-        /* ========================================= */
+
+        /* 隐藏简历时，遮罩减弱，让你看清星空 */
+        body.viewing-space .space-overlay {
+            background: radial-gradient(circle at center, transparent 0%, rgba(2, 6, 19, 0.2) 100%);
+        }
+
+        /* =========================================
+           UI 切换按钮 (Toggle UI Button)
+           ========================================= */
+        .toggle-view-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 119, 255, 0.2);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .toggle-view-btn:hover {
+            background: rgba(0, 240, 255, 0.2);
+            color: #fff;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+            transform: translateY(-2px) scale(1.02);
+        }
 
         /* A4 Page Container with Glassmorphism */
         .resume-wrapper {
@@ -78,6 +134,17 @@
             overflow: hidden;
             border-radius: 8px; /* 增加圆角让悬浮感更强 */
             z-index: 10;
+            /* 添加折叠动画过渡效果 */
+            transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s ease;
+            margin-bottom: 60px; /* 底部留白，防止被悬浮按钮遮挡过多 */
+        }
+
+        /* 隐藏简历时的状态 */
+        .resume-wrapper.hidden {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95) translateY(20px);
+            pointer-events: none;
         }
 
         /* --- SIDEBAR (Deep Space HUD Style) --- */
@@ -254,6 +321,14 @@
             font-family: 'Share Tech Mono', monospace;
         }
 
+        .summary-text {
+            font-size: 11px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            text-align: justify;
+            margin-bottom: 5px;
+        }
+
         .contact-list, .edu-list {
             list-style: none;
         }
@@ -422,7 +497,7 @@
         .timeline-item {
             position: relative;
             margin-bottom: 30px;
-            background: rgba(255, 255, 255, 0.75); /* 卡片略微透明 */
+            background: rgba(255, 255, 255, 0.85); /* 卡片略微透明 */
             padding: 15px;
             border: 1px solid rgba(0, 119, 255, 0.2);
             border-radius: 4px;
@@ -433,7 +508,7 @@
         .timeline-item:hover {
             transform: translateX(5px);
             border-color: var(--neon-cyan);
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
         }
 
         /* Glowing Timeline Node */
@@ -476,6 +551,8 @@
             padding: 4px 10px;
             border-radius: 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            /* 防止挤压导致换行 */
+            white-space: nowrap;
         }
 
         .role {
@@ -496,6 +573,7 @@
             color: var(--text-main);
             text-align: justify;
             line-height: 1.6;
+            font-weight: 600;
         }
 
         /* Hexagon Tech Bullet Points */
@@ -511,14 +589,15 @@
 
         .job-details li strong {
             color: var(--navy-dark);
-            font-weight: 700;
-            background: rgba(0, 240, 255, 0.1);
-            padding: 0 3px;
+            font-weight: 800;
+            background: rgba(0, 240, 255, 0.2);
+            padding: 0 4px;
             border-radius: 2px;
         }
 
         /* =========================================
            📲 移动端响应式完美适配 (MOBILE RESPONSIVE)
+           修复了时间戳挤压和布局错乱问题
            ========================================= */
         @media screen and (max-width: 850px) {
             body { 
@@ -540,18 +619,27 @@
                 width: 100%; 
                 padding: 30px 20px; 
             }
-            /* 修复被挤压的时间标签和公司名称 */
+            /* 重点修复：被挤压的时间标签和公司名称 */
             .job-header { 
                 flex-direction: column; 
                 align-items: flex-start; 
-                gap: 10px; 
+                gap: 8px; 
             }
             .job-date { 
                 align-self: flex-start; 
+                margin-bottom: 5px; /* 与下方的 Role 拉开一点距离 */
             }
             /* 缩小右侧背景装饰环的尺寸，防止其超出手机屏幕导致横向滚动 */
             .mo-1 { width: 300px; height: 300px; top: -50px; right: -50px; }
             .mo-2 { width: 400px; height: 400px; top: -100px; right: -100px; }
+            
+            /* 调整手机端悬浮按钮的位置 */
+            .toggle-view-btn {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 18px;
+                font-size: 12px;
+            }
         }
 
         /* =========================================
@@ -560,12 +648,9 @@
            for perfectly clean, ink-saving printing.
            ========================================= */
         @media print {
-            body { 
-                background-color: #fff !important; 
-                margin: 0; padding: 0;
-            }
-            /* 打印时隐藏星空背景和遮罩 */
-            .galaxy-bg, .space-overlay { display: none !important; }
+            body { background-color: #fff !important; margin: 0; padding: 0; }
+            /* 打印时隐藏星空背景、Canvas、遮罩和按钮 */
+            .galaxy-bg, .space-overlay, #starfield-canvas, .toggle-view-btn { display: none !important; }
             
             .resume-wrapper { 
                 box-shadow: none; margin: 0; width: 100%; 
@@ -573,18 +658,17 @@
                 background: #fff !important;
                 backdrop-filter: none !important;
                 -webkit-backdrop-filter: none !important;
+                transform: none !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                margin-bottom: 0;
             }
             /* Reset Sidebar to Light colors */
-            .sidebar {
-                background: #f0f4f8 !important;
-                border-right: 1px solid #ccc;
-                border-bottom: none !important;
-                color: #333 !important;
-                box-shadow: none;
-            }
+            .sidebar { background: #f0f4f8 !important; border-right: 1px solid #ccc; border-bottom: none !important; color: #333 !important; box-shadow: none; }
             .sidebar::before { display: none; }
             .name, .sidebar-heading, .edu-degree { color: #000 !important; text-shadow: none; }
             .job-title { background: none; border: 1px solid #666; color: #333; }
+            .summary-text { color: #444 !important; }
             .contact-list li, .edu-meta, .edu-school { color: #444 !important; }
             .contact-list i, .sidebar-heading::before { color: #666 !important; text-shadow: none; }
             
@@ -618,11 +702,19 @@
 </head>
 <body>
 
-<!-- 静态高亮银河背景 -->
+<!-- 静态高亮银河背景 (底层) -->
 <div class="galaxy-bg"></div>
+
+<!-- 3D 太空穿梭 Canvas 引擎 (中层，星光向你迎面飞来) -->
+<canvas id="starfield-canvas"></canvas>
+
+<!-- 压暗遮罩 (顶层背景，确保文字可读性) -->
 <div class="space-overlay"></div>
 
-<div class="resume-wrapper">
+<!-- 悬浮切换按钮 (英文) -->
+<button id="toggle-view-btn" class="toggle-view-btn">👁️ View Space</button>
+
+<div class="resume-wrapper" id="resume-container">
 
     <!-- LEFT COLUMN -->
     <aside class="sidebar">
@@ -641,7 +733,14 @@
                 </div>
             </div>
             <h1 class="name">Zili (Keith) Feng</h1>
-            <div class="job-title">SATELLITE COMM ENG</div>
+            <div class="job-title">SYSTEMS ARCHITECT & PMP</div>
+        </div>
+
+        <div>
+            <h2 class="sidebar-heading">Profile</h2>
+            <div class="summary-text">
+                PMP-certified Systems Architect with deep expertise spanning from baseband physical layer (PHY) algorithms and DSP implementations to complex end-to-end communication protocols. Proven track record in orchestrating networks, encompassing satellite constellation architecture and orbital dynamics. Possesses a unique ability to bridge the gap between high-level system decoupling and low-level hardware realities. Understands the pain points of EDA workflows (from RTL synthesis to netlist debugging) and complex SoC/IP integration. Passionate about exploring AI-Agent automated workflows. In navigating highly complex hardware-software delivery pipelines, my core principle is to drive proactive risk management by defining strict system boundaries. I believe in the power of teamwork to prevent scope creep and ensure seamless delivery in cross-functional environments.
+            </div>
         </div>
 
         <div>
@@ -670,22 +769,20 @@
         <div>
             <h2 class="sidebar-heading">Tech HUD</h2>
             <div class="skills-container">
-                <span class="skill-tag">3GPP LTE/NR</span>
-                <span class="skill-tag">NR NTN / IoT</span>
+                <span class="skill-tag">3GPP Standard(LTE\NR\IoT\NTN)</span>
                 <span class="skill-tag">CCSDS Protocol</span>
-                <span class="skill-tag">L1 PHY / L2 MAC</span>
                 <span class="skill-tag">CEVA XC4500</span>
                 <span class="skill-tag">TI DSP 667x</span>
-                <span class="skill-tag">FT6678 Porting</span>
+                <span class="skill-tag">HW/SW Decoupling</span>
+                <span class="skill-tag">Netlist & ILA Debug</span>
                 <span class="skill-tag">MATLAB Sim</span>
                 <span class="skill-tag">CCS / DSP</span>
                 <span class="skill-tag">Vivado / Verilog</span>
+                <span class="skill-tag">Tcl Automation</span>
                 <span class="skill-tag">STK Tool Kit</span>
-                <span class="skill-tag">Channel Estim.</span>
                 <span class="skill-tag">eSIM / OTA</span>
                 <span class="skill-tag">Cybersecurity</span>
                 <span class="skill-tag">Interworing Platform</span>
-                <span class="skill-tag">Core Network</span>
                 <span class="skill-tag">PMP Certified</span>
             </div>
         </div>
@@ -728,11 +825,11 @@
                 </div>
                 <div class="role">Satellite Communication System Engineer</div>
                 <ul class="job-details">
-                    <li><strong>Constellation Architecture:</strong> Spearheaded end-to-end protocol stack design utilizing <strong>NR NTN, IoT NTN, and CCSDS</strong> frameworks. Designed PHY baseband and RF front-end (phased-array antenna) workflows, link budgets, beamforming, beam provisioning scheduling and MATLAB simulations(Channel Estimation, Channel Equalization and HARQ).</li>
+                    <li><strong>Communication System Decoupling & Architecture:</strong> Spearheaded end-to-end protocol stack design utilizing <strong>NR NTN</strong> and <strong>CCSDS</strong> frameworks. Defined clear hardware/software decoupled interfaces at the requirement phase, significantly reducing downstream integration friction and costly RTL re-synthesis cycles.</li>
                     <li><strong>Orbit Control & Coverage:</strong> Conducted constellation coverage analysis via <strong>STK</strong>. Managed satellite operation cycles, ephemeris calculations, and orbital prediction/extrapolation (SGP4, HPOP).</li>
                     <li><strong>Cybersecurity Architecture:</strong> Architected data security algorithms (authentication, encryption) and secure carriers (USIM/eSIM COS systems). Formulated remote OTA specifications and key management strategies.</li>
                     <li><strong>Space‑terrestrial integrated network:</strong> Led the design of the <strong>interworking platform</strong>, implementing protocol conversion.Promoted network convergence across services, operation, security, network management, and terminals.Collaborated with China Unicom Zhejiang to drive the scheme into commercial deployment.</li>
-                    <li><strong>Project Management & Operation Support:</strong> Hold <strong>PMP certification</strong>.Full project lifecycle management including research, design, initiation, bidding, R&D and final acceptance.Guiding the development team to deliver tasks.Ensured smooth handover of completed projects to the operation team and provided follow-up technical support.</li>
+                    <li><strong>Cross-functional PMP Leadership:</strong> Steered the full project lifecycle as a PMP-certified manager. Mastered scope management to effectively prevent requirement creep, acting as the crucial buffer between aggressive client demands and R&D execution limits.</li>
                 </ul>
             </div>
 
@@ -747,8 +844,8 @@
                     <li><strong>Baseband Algorithms:</strong> Optimized DFT channel estimation (mirrored DFT to mitigate RB edge attenuation) and MMSE estimation (Wiener filter coefficients). Implemented MRC equalization and AGC compensation.</li>
                     <li><strong>Decoding & DFE:</strong> Developed Incremental Redundancy HARQ (LLR merging) and soft-implemented PUSCH RM decoding to replace missing chip firmware. Conducted DFE fixed-point simulations and designed LFSR multi-bit CRC24.</li>
                     <li><strong>DSP Porting (Localization):</strong> Ported legacy baseband code to domestic DSP <strong>FT6678</strong>. Maintained PHY channel logic (PUSCH, PUCCH) on TI <strong>DSP 6670/6678</strong>. Developed AMC, dynamic scheduling, and zero-copy reporting.</li>
-                    <li><strong>Co-Simulation & CEVA:</strong> Built DSP-MATLAB bidirectional interfaces for L1 testing. Mastered <strong>CEVA XC4500</strong> architecture (8911 chip), utilizing vector accelerators for baseband compilation. Debugged Verilog via Vivado EDA.</li>
-                    <li><strong>Verilog Algorithm Debugging:</strong>Knowing Verilog Programming and using the Vivado EDA. Adding pilots and triggering to record data.</li>
+                    <li><strong>SoC & IP Integration:</strong> Mastered <strong>CEVA XC4500</strong> DSP architecture. Successfully ported legacy baseband codes to domestic DSPs, overcoming complex system-level integration bottlenecks (e.g., memory mapping, multi-core synchronization) during soft/firm IP deployments.</li>
+                    <li><strong>Hardware Debugging & Verification:</strong> Utilized Vivado Integrated Logic Analyzer (ILA) to insert hardware probes and configure complex trigger conditions. Captured real-time on-chip signals for rapid root-cause analysis of timing and logic bugs, effectively bridging the gap between RTL design and physical netlist implementation.</li>
                 </ul>
             </div>
 
@@ -781,6 +878,136 @@
         </div>
     </main>
 </div>
+
+<!-- ==========================================
+     JavaScript: 交互与动画逻辑 (3D 迎面飞梭星空)
+     ========================================== -->
+<script>
+    // --- 简历隐藏/显示切换逻辑 ---
+    const toggleBtn = document.getElementById('toggle-view-btn');
+    const resumeContainer = document.getElementById('resume-container');
+    let isResumeHidden = false;
+
+    toggleBtn.addEventListener('click', () => {
+        isResumeHidden = !isResumeHidden;
+        if (isResumeHidden) {
+            resumeContainer.classList.add('hidden');
+            toggleBtn.innerHTML = '📄 Show Resume';
+            document.body.classList.add('viewing-space');
+        } else {
+            resumeContainer.classList.remove('hidden');
+            toggleBtn.innerHTML = '👁️ View Space';
+            document.body.classList.remove('viewing-space');
+        }
+    });
+
+    // --- 3D 太空遨游粒子引擎 ---
+    const canvas = document.getElementById('starfield-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let width, height;
+    let stars = [];
+    const numStars = 400;      // 宇宙中的星星数量
+    const speed = 1.2;         // 巡航速度 (飞船前进速度)
+    
+    // 鼠标追踪，用于改变视角方向
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    
+    window.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    // 触摸屏支持
+    window.addEventListener('touchmove', (e) => {
+        if(e.touches.length > 0) {
+            mouseX = e.touches[0].clientX;
+            mouseY = e.touches[0].clientY;
+        }
+    });
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Star {
+        constructor() {
+            // 初始化星辰在 3D 空间中的随机位置
+            this.x = (Math.random() - 0.5) * width * 2;
+            this.y = (Math.random() - 0.5) * height * 2;
+            this.z = Math.random() * width;
+            this.pz = this.z; // 记录上一帧的 Z 轴位置，用于画出光速拖尾
+        }
+
+        update() {
+            // 星辰不断向屏幕靠近 (Z轴减小)
+            this.z -= speed;
+            
+            // 如果星星飞过了屏幕 (Z轴小于1)，就让它在最远处重新生成
+            if (this.z < 1) {
+                this.z = width;
+                this.x = (Math.random() - 0.5) * width * 2;
+                this.y = (Math.random() - 0.5) * height * 2;
+                this.pz = this.z;
+            }
+        }
+
+        draw() {
+            // 视角中心偏移算法：根据鼠标位置稍微改变中心消影点
+            let cx = width / 2 + (mouseX - width / 2) * 0.05;
+            let cy = height / 2 + (mouseY - height / 2) * 0.05;
+
+            // 将 3D 坐标投影到 2D 屏幕上
+            let sx = (this.x / this.z) * (width / 2) + cx;
+            let sy = (this.y / this.z) * (height / 2) + cy;
+            
+            // 计算上一帧在屏幕上的位置
+            let px = (this.x / this.pz) * (width / 2) + cx;
+            let py = (this.y / this.pz) * (height / 2) + cy;
+            
+            this.pz = this.z; // 更新历史Z轴
+
+            // 星星越近，尺寸越大，亮度越高
+            let size = (1 - this.z / width) * 2;
+            let alpha = 1 - this.z / width;
+
+            // 绘制带有拖尾效果的流星线条
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.lineTo(sx, sy);
+            ctx.lineWidth = size;
+            // 使用你的霓虹主题色（浅蓝cyan）
+            ctx.strokeStyle = `rgba(0, 240, 255, ${alpha})`;
+            ctx.stroke();
+        }
+    }
+
+    function initStars() {
+        stars = [];
+        for (let i = 0; i < numStars; i++) {
+            stars.push(new Star());
+        }
+    }
+
+    function animate() {
+        // 清空画布，不使用全黑，保留透明度以透出底层的真实银河图
+        ctx.clearRect(0, 0, width, height);
+        
+        stars.forEach(star => {
+            star.update();
+            star.draw();
+        });
+        
+        requestAnimationFrame(animate);
+    }
+
+    initStars();
+    animate();
+</script>
 
 </body>
 </html>
