@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zili Feng - LEO Cyber Aerospace Resume</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Share+Tech+Mono&family=Open+Sans:wght@400;600&display=swap');
-
+        /* 彻底移除 Google Fonts，改用本地安全字体族，确保国内秒开 */
         :root {
             --bg-main: rgba(255, 255, 255, 0.90); 
             --sidebar-grad-1: rgba(11, 16, 33, 0.85);
@@ -18,6 +17,10 @@
             --text-light: #64748b;
             --navy-dark: #0f172a;
             --grid-color: rgba(0, 119, 255, 0.08);
+            
+            /* 定义本地字体 */
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+            --font-mono: Consolas, "Courier New", monospace;
         }
 
         * {
@@ -27,8 +30,8 @@
         }
 
         body {
-            font-family: 'Open Sans', sans-serif;
-            background-color: #050914; /* 加深底色让星空更明显 */
+            font-family: var(--font-sans);
+            background-color: #050914; 
             color: var(--text-main);
             font-size: 11.5px; 
             line-height: 1.6;
@@ -41,7 +44,7 @@
         }
 
         /* =========================================
-           背景层1: 缓慢巡航的高清银河底图
+           背景层1: 纯 CSS 生成的静态深空底图
            ========================================= */
         .galaxy-bg {
             position: fixed;
@@ -54,9 +57,24 @@
             animation: deep-space-pan 120s linear infinite alternate;
         }
 
-        @keyframes deep-space-pan {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.15) translate(-2%, -2%); }
+        .css-stars {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 90px 40px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            z-index: -4;
+            opacity: 0.3;
+            animation: slow-pan 100s linear infinite;
+        }
+
+        @keyframes slow-pan {
+            from { background-position: 0 0; }
+            to { background-position: -200px -200px; }
         }
 
         /* =========================================
@@ -67,10 +85,10 @@
             top: 0; left: 0;
             width: 100vw; height: 100vh;
             z-index: -3;
-            pointer-events: none; /* 让鼠标事件穿透画布作用于下方的按钮 */
+            pointer-events: none; 
         }
 
-        /* 背景层3: 压暗遮罩，确保文字始终清晰 */
+        /* 背景层3: 压暗遮罩 */
         .space-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -80,66 +98,93 @@
             transition: background 0.5s ease;
         }
 
-        /* 隐藏简历时，遮罩减弱，让你看清星空 */
         body.viewing-space .space-overlay {
             background: radial-gradient(circle at center, transparent 0%, rgba(2, 6, 19, 0.2) 100%);
         }
 
         /* =========================================
-           UI 切换按钮 (Toggle UI Button)
+           UI 切换按钮集合 (Language & View Space)
            ========================================= */
-        .toggle-view-btn {
+        .controls-container {
             position: fixed;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .controls-bottom-right {
             bottom: 30px;
             right: 30px;
+        }
+
+        .controls-top-right {
+            top: 30px;
+            right: 30px;
+        }
+
+        .cyber-btn {
             background: rgba(0, 119, 255, 0.2);
             border: 1px solid var(--neon-cyan);
             color: var(--neon-cyan);
-            padding: 12px 24px;
+            padding: 10px 20px;
             border-radius: 30px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 14px;
+            font-family: var(--font-sans);
+            font-size: 13px;
             font-weight: 800;
             cursor: pointer;
-            z-index: 100;
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
-        .toggle-view-btn:hover {
+        .cyber-btn:hover {
             background: rgba(0, 240, 255, 0.2);
             color: #fff;
             box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
             transform: translateY(-2px) scale(1.02);
         }
 
-        /* A4 Page Container with Glassmorphism */
+        /* 语言切换按钮特殊样式 */
+        .lang-btn {
+            font-family: var(--font-mono);
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        .lang-btn span {
+            transition: color 0.3s;
+        }
+        .lang-btn .active-lang {
+            color: #fff;
+            text-shadow: 0 0 8px #fff;
+        }
+
+        /* =========================================
+           A4 Page Container
+           ========================================= */
         .resume-wrapper {
             width: 210mm;
             min-height: 297mm;
             background: var(--bg-main);
-            /* 毛玻璃背景模糊效果 */
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             box-shadow: 0 0 50px rgba(0, 240, 255, 0.25), 0 0 0 1px rgba(255,255,255,0.15);
             display: flex;
             position: relative;
             overflow: hidden;
-            border-radius: 8px; /* 增加圆角让悬浮感更强 */
+            border-radius: 8px; 
             z-index: 10;
-            /* 添加折叠动画过渡效果 */
             transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s ease;
-            margin-bottom: 60px; /* 底部留白，防止被悬浮按钮遮挡过多 */
+            margin-bottom: 60px; 
         }
 
-        /* 隐藏简历时的状态 */
         .resume-wrapper.hidden {
             opacity: 0;
             visibility: hidden;
@@ -147,7 +192,7 @@
             pointer-events: none;
         }
 
-        /* --- SIDEBAR (Deep Space HUD Style) --- */
+        /* --- SIDEBAR --- */
         .sidebar {
             width: 34%;
             background: linear-gradient(145deg, var(--sidebar-grad-1) 0%, var(--sidebar-grad-2) 100%);
@@ -161,7 +206,6 @@
             box-shadow: inset -5px 0 20px rgba(0, 240, 255, 0.1);
         }
 
-        /* Sidebar HUD grid lines */
         .sidebar::before {
             content: '';
             position: absolute;
@@ -178,7 +222,6 @@
             position: relative;
         }
 
-        /* Animated Radar & Orbit for Profile */
         .profile-pic-container {
             width: 120px;
             height: 120px;
@@ -197,7 +240,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Share Tech Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 11px;
             color: var(--neon-cyan);
             text-shadow: 0 0 5px var(--neon-cyan);
@@ -207,7 +250,6 @@
             z-index: 5;
         }
 
-        /* Radar Pulse Effect */
         .radar-pulse {
             position: absolute;
             top: 50%; left: 50%;
@@ -224,446 +266,159 @@
             100% { width: 220px; height: 220px; opacity: 0; }
         }
 
-        /* ====================================================
-           SATELLITE ORBIT AND CSS-DRAWN MINI SATELLITE 
-           ==================================================== */
         .satellite-orbit {
             position: absolute;
             top: -15px; left: -15px; right: -15px; bottom: -15px;
             border-radius: 50%;
             border: 1px dashed rgba(0, 240, 255, 0.3);
-            animation: spin 10s linear infinite; /* 10 seconds per orbit */
+            animation: spin 10s linear infinite; 
             z-index: 6;
         }
 
-        /* CSS Drawn Satellite Container */
         .satellite {
             position: absolute;
-            top: -5px; /* Sits perfectly on the dashed orbit line */
-            left: 50%;
-            margin-left: -10px; /* Center horizontally (width is 20) */
-            width: 20px; 
-            height: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            filter: drop-shadow(0 0 5px var(--neon-cyan)); /* Outer glow */
+            top: -5px; left: 50%; margin-left: -10px; 
+            width: 20px; height: 10px;
+            display: flex; align-items: center; justify-content: center;
+            filter: drop-shadow(0 0 5px var(--neon-cyan)); 
         }
 
-        /* Satellite Solar Panels (Wings) */
         .satellite::before {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 4px;
-            background: var(--neon-blue);
-            border: 1px solid var(--neon-cyan);
-            border-radius: 1px;
-            z-index: 1;
+            content: ''; position: absolute; width: 20px; height: 4px;
+            background: var(--neon-blue); border: 1px solid var(--neon-cyan); border-radius: 1px; z-index: 1;
         }
 
-        /* Satellite Main Body (Center) */
         .satellite::after {
-            content: '';
-            position: absolute;
-            width: 6px;
-            height: 10px;
-            background: #ffffff;
-            border-radius: 2px;
-            z-index: 2;
+            content: ''; position: absolute; width: 6px; height: 10px;
+            background: #ffffff; border-radius: 2px; z-index: 2;
         }
 
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
-        /* ==================================================== */
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
         .name {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 18px;
-            font-weight: 800;
-            color: #ffffff;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
-            margin-bottom: 5px;
+            font-family: var(--font-sans);
+            font-size: 18px; font-weight: 800; color: #ffffff;
+            letter-spacing: 1px; text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); margin-bottom: 5px;
         }
 
         .job-title {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 13px;
-            color: var(--neon-cyan);
-            background: rgba(0, 240, 255, 0.1);
-            display: inline-block;
-            padding: 4px 12px;
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 4px;
-            margin-bottom: 10px;
+            font-family: var(--font-mono);
+            font-size: 12px; color: var(--neon-cyan);
+            background: rgba(0, 240, 255, 0.1); display: inline-block; padding: 4px 12px;
+            border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 4px; margin-bottom: 10px; font-weight: bold;
         }
 
         .sidebar-heading {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 14px;
-            font-weight: 800;
-            color: #ffffff;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 2px solid rgba(0, 240, 255, 0.3);
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-            position: relative;
+            font-family: var(--font-sans);
+            font-size: 14px; font-weight: 800; color: #ffffff;
+            text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid rgba(0, 240, 255, 0.3);
+            padding-bottom: 5px; margin-bottom: 15px; position: relative;
         }
 
         .sidebar-heading::before {
-            content: '>';
-            color: var(--neon-cyan);
-            margin-right: 8px;
-            font-family: 'Share Tech Mono', monospace;
+            content: '>'; color: var(--neon-cyan); margin-right: 8px; font-family: var(--font-mono); font-weight: bold;
         }
 
         .summary-text {
-            font-size: 11px;
-            color: #cbd5e1;
-            line-height: 1.6;
-            text-align: justify;
-            margin-bottom: 5px;
+            font-size: 11px; color: #cbd5e1; line-height: 1.6; text-align: justify; margin-bottom: 5px;
         }
 
-        .contact-list, .edu-list {
-            list-style: none;
-        }
+        .contact-list, .edu-list { list-style: none; }
+        .contact-list li { margin-bottom: 12px; display: flex; align-items: center; gap: 12px; color: #e2e8f0; font-family: var(--font-mono); font-size: 11px; }
+        .contact-list i { color: var(--neon-cyan); font-style: normal; font-weight: bold; font-size: 14px; text-shadow: 0 0 5px var(--neon-cyan); }
 
-        .contact-list li {
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #e2e8f0;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 11.5px;
-        }
+        .edu-item { margin-bottom: 18px; }
+        .edu-degree { font-weight: 600; color: #ffffff; font-size: 12.5px; margin-bottom: 3px; }
+        .edu-school { color: var(--neon-cyan); font-weight: 600; font-size: 11.5px; margin-bottom: 3px; }
+        .edu-meta { font-size: 10.5px; color: #94a3b8; font-family: var(--font-mono); }
 
-        .contact-list i {
-            color: var(--neon-cyan);
-            font-style: normal;
-            font-weight: bold;
-            font-size: 14px;
-            text-shadow: 0 0 5px var(--neon-cyan);
-        }
-
-        .edu-item {
-            margin-bottom: 18px;
-        }
-        .edu-degree {
-            font-weight: 600;
-            color: #ffffff;
-            font-size: 12.5px;
-            margin-bottom: 3px;
-        }
-        .edu-school {
-            color: var(--neon-cyan);
-            font-weight: 600;
-            font-size: 11.5px;
-            margin-bottom: 3px;
-        }
-        .edu-meta {
-            font-size: 10.5px;
-            color: #94a3b8;
-            font-family: 'Share Tech Mono', monospace;
-        }
-
-        /* Skills Tags (Glowing Cyberpunk style) */
-        .skills-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
+        .skills-container { display: flex; flex-wrap: wrap; gap: 8px; }
         .skill-tag {
-            background-color: rgba(0, 119, 255, 0.1);
-            color: var(--neon-cyan);
-            border: 1px solid var(--neon-blue);
-            padding: 5px 10px;
-            font-size: 10.5px;
-            font-family: 'Share Tech Mono', monospace;
-            border-radius: 2px;
-            box-shadow: 0 0 5px rgba(0, 119, 255, 0.2);
-            transition: all 0.3s ease;
+            background-color: rgba(0, 119, 255, 0.1); color: var(--neon-cyan); border: 1px solid var(--neon-blue);
+            padding: 5px 10px; font-size: 10px; font-family: var(--font-mono); font-weight: bold; border-radius: 2px;
+            box-shadow: 0 0 5px rgba(0, 119, 255, 0.2); transition: all 0.3s ease;
         }
-        .skill-tag:hover {
-            background-color: var(--neon-cyan);
-            color: #000;
-            box-shadow: 0 0 15px var(--neon-cyan);
-            transform: translateY(-2px);
-        }
+        .skill-tag:hover { background-color: var(--neon-cyan); color: #000; box-shadow: 0 0 15px var(--neon-cyan); transform: translateY(-2px); }
 
-        /* --- MAIN CONTENT (Blueprint Style) --- */
+        /* --- MAIN CONTENT --- */
         .main-content {
-            width: 66%;
-            padding: 40px 35px;
-            position: relative;
-            background-color: transparent; /* 改为透明透出玻璃效果 */
-            /* Engineering blueprint grid */
-            background-image: 
-                linear-gradient(var(--grid-color) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 20px 20px;
-            z-index: 1;
-        }
-
-        /* Decorative LEO Orbits in Main Content */
-        .main-orbit {
-            position: absolute;
-            border-radius: 50%;
-            border: 1px dashed rgba(0, 119, 255, 0.15); /* Full faint dashed orbit */
-            z-index: -1;
-        }
-        .mo-1 { width: 500px; height: 500px; top: -100px; right: -150px; border-left: 2px solid rgba(0, 119, 255, 0.7); animation: spin 20s linear infinite; }
-        .mo-2 { width: 700px; height: 700px; top: -200px; right: -250px; border-bottom: 2px solid rgba(0, 240, 255, 0.7); animation: spin 30s linear infinite reverse; }
-
-        /* Background Mini Satellites */
-        .bg-satellite {
-            position: absolute;
-            width: 14px; 
-            height: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.6;
-            filter: drop-shadow(0 0 3px var(--neon-cyan));
-        }
-        .bg-satellite::before {
-            content: '';
-            position: absolute;
-            width: 14px;
-            height: 2px;
-            background: var(--neon-blue);
-            border: 1px solid var(--neon-cyan);
-            border-radius: 1px;
-        }
-        .bg-satellite::after {
-            content: '';
-            position: absolute;
-            width: 4px;
-            height: 6px;
-            background: #ffffff;
-            border-radius: 1px;
+            width: 66%; padding: 40px 35px; position: relative; background-color: transparent; 
+            background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 20px 20px; z-index: 1;
         }
 
         .section-header {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--navy-dark);
-            text-transform: uppercase;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
+            font-family: var(--font-sans); font-size: 18px; font-weight: 800; color: var(--navy-dark);
+            text-transform: uppercase; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; position: relative;
         }
         
         .section-header::before {
-            content: "🛰"; /* Satellite Emoji */
-            font-size: 20px;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            content: "🛰"; font-size: 20px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .section-header::after {
-            content: '';
-            flex: 1;
-            height: 3px;
-            background: linear-gradient(90deg, var(--neon-blue), transparent);
-        }
+        .section-header::after { content: ''; flex: 1; height: 3px; background: linear-gradient(90deg, var(--neon-blue), transparent); }
 
-        /* Timeline for Experience */
-        .timeline {
-            position: relative;
-            padding-left: 25px;
-        }
-
-        /* Glowing Timeline Line */
+        .timeline { position: relative; padding-left: 25px; }
         .timeline::before {
-            content: '';
-            position: absolute;
-            left: 7px;
-            top: 6px;
-            bottom: 0;
-            width: 2px;
-            background: linear-gradient(180deg, var(--neon-blue) 0%, rgba(0, 119, 255, 0.2) 100%);
-            box-shadow: 0 0 10px var(--neon-blue);
+            content: ''; position: absolute; left: 7px; top: 6px; bottom: 0; width: 2px;
+            background: linear-gradient(180deg, var(--neon-blue) 0%, rgba(0, 119, 255, 0.2) 100%); box-shadow: 0 0 10px var(--neon-blue);
         }
 
         .timeline-item {
-            position: relative;
-            margin-bottom: 30px;
-            background: rgba(255, 255, 255, 0.85); /* 卡片略微透明 */
-            padding: 15px;
-            border: 1px solid rgba(0, 119, 255, 0.2);
-            border-radius: 4px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-            transition: transform 0.2s, background 0.3s;
+            position: relative; margin-bottom: 30px; background: rgba(255, 255, 255, 0.85); 
+            padding: 15px; border: 1px solid rgba(0, 119, 255, 0.2); border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); transition: transform 0.2s, background 0.3s;
         }
 
-        .timeline-item:hover {
-            transform: translateX(5px);
-            border-color: var(--neon-cyan);
-            background: rgba(255, 255, 255, 0.98);
-        }
+        .timeline-item:hover { transform: translateX(5px); border-color: var(--neon-cyan); background: rgba(255, 255, 255, 0.98); }
 
-        /* Glowing Timeline Node */
         .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -23.5px;
-            top: 20px;
-            width: 12px;
-            height: 12px;
-            background-color: #fff;
-            border: 3px solid var(--neon-blue);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--neon-cyan);
-            z-index: 1;
+            content: ''; position: absolute; left: -23.5px; top: 20px; width: 12px; height: 12px; background-color: #fff;
+            border: 3px solid var(--neon-blue); border-radius: 50%; box-shadow: 0 0 10px var(--neon-cyan); z-index: 1;
         }
 
-        .job-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-            border-bottom: 1px dashed rgba(0, 119, 255, 0.3);
-            padding-bottom: 6px;
-        }
-
-        .company {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--navy-dark);
-        }
-
+        .job-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px dashed rgba(0, 119, 255, 0.3); padding-bottom: 6px; }
+        .company { font-family: var(--font-sans); font-size: 15px; font-weight: 800; color: var(--navy-dark); }
         .job-date {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 11px;
-            font-weight: 600;
-            color: #ffffff;
-            background: var(--navy-dark);
-            padding: 4px 10px;
-            border-radius: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            /* 防止挤压导致换行 */
-            white-space: nowrap;
+            font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: #ffffff; background: var(--navy-dark);
+            padding: 4px 10px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); white-space: nowrap;
         }
+        .role { font-size: 13px; font-weight: 700; color: var(--neon-blue); margin-bottom: 10px; }
 
-        .role {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--neon-blue);
-            margin-bottom: 10px;
-        }
-
-        .job-details {
-            list-style-type: none;
-        }
-
-        .job-details li {
-            position: relative;
-            padding-left: 18px;
-            margin-bottom: 8px;
-            color: var(--text-main);
-            text-align: justify;
-            line-height: 1.6;
-            font-weight: 600;
-        }
-
-        /* Hexagon Tech Bullet Points */
-        .job-details li::before {
-            content: "⬡";
-            position: absolute;
-            left: 0;
-            color: var(--neon-blue);
-            font-size: 12px;
-            top: 1px;
-            font-weight: bold;
-        }
-
-        .job-details li strong {
-            color: var(--navy-dark);
-            font-weight: 800;
-            background: rgba(0, 240, 255, 0.2);
-            padding: 0 4px;
-            border-radius: 2px;
-        }
+        .job-details { list-style-type: none; }
+        .job-details li { position: relative; padding-left: 18px; margin-bottom: 8px; color: var(--text-main); text-align: justify; line-height: 1.6; font-weight: 600; }
+        .job-details li::before { content: "⬡"; position: absolute; left: 0; color: var(--neon-blue); font-size: 12px; top: 1px; font-weight: bold; }
+        .job-details li strong { color: var(--navy-dark); font-weight: 800; background: rgba(0, 240, 255, 0.2); padding: 0 4px; border-radius: 2px; }
 
         /* =========================================
-           📲 移动端响应式完美适配 (MOBILE RESPONSIVE)
-           修复了时间戳挤压和布局错乱问题
+           📲 移动端响应式完美适配
            ========================================= */
         @media screen and (max-width: 850px) {
-            body { 
-                padding: 10px; 
-            }
-            .resume-wrapper { 
-                width: 100%; 
-                min-height: auto;
-                flex-direction: column; /* 核心：将左右两栏变为上下堆叠 */
-                border-radius: 8px;
-            }
-            .sidebar { 
-                width: 100%; 
-                border-right: none; 
-                border-bottom: 2px solid var(--neon-cyan); /* 底部加上蓝色发光分割线 */
-                padding: 30px 20px; 
-            }
-            .main-content { 
-                width: 100%; 
-                padding: 30px 20px; 
-            }
-            /* 重点修复：被挤压的时间标签和公司名称 */
-            .job-header { 
-                flex-direction: column; 
-                align-items: flex-start; 
-                gap: 8px; 
-            }
-            .job-date { 
-                align-self: flex-start; 
-                margin-bottom: 5px; /* 与下方的 Role 拉开一点距离 */
-            }
-            /* 缩小右侧背景装饰环的尺寸，防止其超出手机屏幕导致横向滚动 */
-            .mo-1 { width: 300px; height: 300px; top: -50px; right: -50px; }
-            .mo-2 { width: 400px; height: 400px; top: -100px; right: -100px; }
+            body { padding: 10px; }
+            .resume-wrapper { width: 100%; min-height: auto; flex-direction: column; border-radius: 8px; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--neon-cyan); padding: 30px 20px; }
+            .main-content { width: 100%; padding: 30px 20px; }
+            .job-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .job-date { align-self: flex-start; margin-bottom: 5px; }
             
-            /* 调整手机端悬浮按钮的位置 */
-            .toggle-view-btn {
-                bottom: 20px;
-                right: 20px;
-                padding: 10px 18px;
-                font-size: 12px;
-            }
+            .controls-bottom-right { bottom: 15px; right: 15px; }
+            .controls-top-right { top: 15px; right: 15px; }
+            .cyber-btn { padding: 8px 16px; font-size: 11px; }
         }
 
         /* =========================================
-           PRINT MEDIA QUERY (The Magic Part)
-           Removes all flashy colors and animations 
-           for perfectly clean, ink-saving printing.
+           PRINT MEDIA QUERY (PDF 打印专属)
            ========================================= */
         @media print {
             body { background-color: #fff !important; margin: 0; padding: 0; }
-            /* 打印时隐藏星空背景、Canvas、遮罩和按钮 */
-            .galaxy-bg, .space-overlay, #starfield-canvas, .toggle-view-btn { display: none !important; }
+            .galaxy-bg, .css-stars, .space-overlay, #starfield-canvas, .controls-container { display: none !important; }
             
             .resume-wrapper { 
-                box-shadow: none; margin: 0; width: 100%; 
-                border: none; border-radius: 0;
-                background: #fff !important;
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
-                transform: none !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-                margin-bottom: 0;
+                box-shadow: none; margin: 0; width: 100%; border: none; border-radius: 0;
+                background: #fff !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+                transform: none !important; visibility: visible !important; opacity: 1 !important; margin-bottom: 0;
             }
-            /* Reset Sidebar to Light colors */
             .sidebar { background: #f0f4f8 !important; border-right: 1px solid #ccc; border-bottom: none !important; color: #333 !important; box-shadow: none; }
             .sidebar::before { display: none; }
             .name, .sidebar-heading, .edu-degree { color: #000 !important; text-shadow: none; }
@@ -671,28 +426,20 @@
             .summary-text { color: #444 !important; }
             .contact-list li, .edu-meta, .edu-school { color: #444 !important; }
             .contact-list i, .sidebar-heading::before { color: #666 !important; text-shadow: none; }
-            
-            /* Stop animations and hide flashy deco */
-            .radar-pulse, .satellite-orbit, .main-orbit { display: none !important; }
-            .profile-pic { background: #fff; border: 1px solid #ccc; box-shadow: none; color: #999; text-shadow: none; }
+            .radar-pulse, .satellite-orbit { display: none !important; }
+            .profile-pic { background: #fff; border: 1px solid #ccc; box-shadow: none; }
             .skill-tag { background: #fff !important; color: #333 !important; border: 1px solid #ccc; box-shadow: none !important; }
-            
-            /* Main Content Reset */
             .main-content { background: #fff !important; }
             .section-header { color: #000 !important; }
             .section-header::before { background: none; color: #000; -webkit-text-fill-color: #000; }
             .section-header::after { background: #ccc !important; }
-            
             .timeline-item { border: none; box-shadow: none; padding: 0 0 15px 0; background: transparent; }
             .timeline::before { background: #ccc !important; box-shadow: none; }
             .timeline-item::before { border-color: #666; box-shadow: none; }
-            
             .job-date { background: #eee !important; color: #333 !important; box-shadow: none; align-self: center; }
             .role { color: #333 !important; }
             .job-details li::before { color: #666 !important; }
             .job-details li strong { background: none; color: #000; }
-            
-            /* 打印时恢复为左右布局（确保A4纸效果） */
             .resume-wrapper { flex-direction: row; }
             .sidebar { width: 34%; border-right: 1px solid #ccc; }
             .main-content { width: 66%; }
@@ -702,176 +449,162 @@
 </head>
 <body>
 
-<!-- 静态高亮银河背景 (底层) -->
+<!-- 1. 纯代码深空底图 -->
 <div class="galaxy-bg"></div>
+<div class="css-stars"></div>
 
-<!-- 3D 太空穿梭 Canvas 引擎 (中层，星光向你迎面飞来) -->
+<!-- 2. 3D 穿梭星空 Canvas -->
 <canvas id="starfield-canvas"></canvas>
 
-<!-- 压暗遮罩 (顶层背景，确保文字可读性) -->
+<!-- 3. 压暗遮罩 -->
 <div class="space-overlay"></div>
 
-<!-- 悬浮切换按钮 (英文) -->
-<button id="toggle-view-btn" class="toggle-view-btn">👁️ View Space</button>
+<!-- UI 控制组 (右上角语言切换，右下角视角切换) -->
+<div class="controls-container controls-top-right">
+    <button id="lang-toggle-btn" class="cyber-btn lang-btn" onclick="toggleLanguage()">
+        <span id="lang-en" class="active-lang">EN</span> &nbsp;/&nbsp; <span id="lang-zh">中</span>
+    </button>
+</div>
+
+<div class="controls-container controls-bottom-right">
+    <button id="toggle-view-btn" class="cyber-btn" onclick="toggleView()">👁️ View Space</button>
+</div>
 
 <div class="resume-wrapper" id="resume-container">
-
     <!-- LEFT COLUMN -->
     <aside class="sidebar">
         <div class="profile-section">
             <div class="profile-pic-container">
                 <div class="radar-pulse"></div>
-                
-                <!-- Orbiting Satellite -->
-                <div class="satellite-orbit">
-                    <div class="satellite"></div>
-                </div>
-                
-                <!-- Profile Image -->
+                <div class="satellite-orbit"><div class="satellite"></div></div>
                 <div class="profile-pic">
                     <img src="photo.jpg" alt="Zili Feng" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transform: scale(0.90); object-position: center -15px;">
                 </div>
             </div>
-            <h1 class="name">Zili (Keith) Feng</h1>
-            <div class="job-title">SYSTEMS ARCHITECT & PMP</div>
+            <h1 class="name" id="t-name">Zili (Keith) Feng</h1>
+            <div class="job-title" id="t-job-title">SYSTEMS ARCHITECT & PMP</div>
         </div>
 
         <div>
-            <h2 class="sidebar-heading">Profile</h2>
-            <div class="summary-text">
+            <h2 class="sidebar-heading" id="h-profile">Profile</h2>
+            <div class="summary-text" id="t-profile-text">
                 PMP-certified Systems Architect with deep expertise spanning from baseband physical layer (PHY) algorithms and DSP implementations to complex end-to-end communication protocols. Proven track record in orchestrating networks, encompassing satellite constellation architecture and orbital dynamics. Possesses a unique ability to bridge the gap between high-level system decoupling and low-level hardware realities. Understands the pain points of EDA workflows (from RTL synthesis to netlist debugging) and complex SoC/IP integration. Passionate about exploring AI-Agent automated workflows. In navigating highly complex hardware-software delivery pipelines, my core principle is to drive proactive risk management by defining strict system boundaries. I believe in the power of teamwork to prevent scope creep and ensure seamless delivery in cross-functional environments.
             </div>
         </div>
 
         <div>
-            <h2 class="sidebar-heading">Personal Info</h2>
+            <h2 class="sidebar-heading" id="h-personal">Personal Info</h2>
             <ul class="contact-list">
-                <li><i>[+]</i> <span>+86 150-2142-1794</span></li>
-                <li><i>[@]</i> <span>zilifeng_jari@163.com</span></li>
-                <li><i>[i]</i> <span>Male | Feb 1997</span></li>
+                <li><i>[+]</i> <span id="t-phone">+86 150-2142-1794</span></li>
+                <li><i>[@]</i> <span id="t-email">zilifeng_jari@163.com</span></li>
+                <li><i>[i]</i> <span id="t-gender-age">Male | Feb 1997</span></li>
             </ul>
         </div>
 
         <div>
-            <h2 class="sidebar-heading">Academy</h2>
+            <h2 class="sidebar-heading" id="h-academy">Academy</h2>
             <div class="edu-item">
-                <div class="edu-degree">M.Sc. Comm & Signal Processing</div>
-                <div class="edu-school">Newcastle University, UK</div>
-                <div class="edu-meta">Sep 2018 - Jan 2020 | QS: Top 150<br>Grade: Distinction (1:1 class)</div>
+                <div class="edu-degree" id="t-edu1-deg">M.Sc. Comm & Signal Processing</div>
+                <div class="edu-school" id="t-edu1-sch">Newcastle University, UK</div>
+                <div class="edu-meta" id="t-edu1-meta">Sep 2018 - Jan 2020 | QS: Top 150<br>Grade: Distinction (1:1 class)</div>
             </div>
             <div class="edu-item">
-                <div class="edu-degree">B.Eng. Electronic Comm Eng</div>
-                <div class="edu-school">Newcastle University, UK</div>
-                <div class="edu-meta">Sep 2014 - Jun 2018 | QS: Top 150<br>Grade: Upper Second (2:1 class)</div>
+                <div class="edu-degree" id="t-edu2-deg">B.Eng. Electronic Comm Eng</div>
+                <div class="edu-school" id="t-edu2-sch">Newcastle University, UK</div>
+                <div class="edu-meta" id="t-edu2-meta">Sep 2014 - Jun 2018 | QS: Top 150<br>Grade: Upper Second (2:1 class)</div>
             </div>
         </div>
 
         <div>
-            <h2 class="sidebar-heading">Tech HUD</h2>
+            <h2 class="sidebar-heading" id="h-tech">Tech HUD</h2>
             <div class="skills-container">
                 <span class="skill-tag">3GPP Standard(LTE\NR\IoT\NTN)</span>
                 <span class="skill-tag">CCSDS Protocol</span>
                 <span class="skill-tag">CEVA XC4500</span>
                 <span class="skill-tag">TI DSP 667x</span>
-                <span class="skill-tag">HW/SW Decoupling</span>
-                <span class="skill-tag">Netlist & ILA Debug</span>
+                <span class="skill-tag" id="t-skill1">HW/SW Decoupling</span>
+                <span class="skill-tag" id="t-skill2">Netlist & ILA Debug</span>
                 <span class="skill-tag">MATLAB Sim</span>
                 <span class="skill-tag">CCS / DSP</span>
                 <span class="skill-tag">Vivado / Verilog</span>
-                <span class="skill-tag">Tcl Automation</span>
+                <span class="skill-tag" id="t-skill3">Tcl Automation</span>
                 <span class="skill-tag">STK Tool Kit</span>
                 <span class="skill-tag">eSIM / OTA</span>
-                <span class="skill-tag">Cybersecurity</span>
-                <span class="skill-tag">Interworing Platform</span>
-                <span class="skill-tag">PMP Certified</span>
+                <span class="skill-tag" id="t-skill4">Cybersecurity</span>
+                <span class="skill-tag" id="t-skill5">Interworing Platform</span>
+                <span class="skill-tag" id="t-skill6">PMP Certified</span>
             </div>
         </div>
 
         <div>
-            <h2 class="sidebar-heading">Vocals</h2>
+            <h2 class="sidebar-heading" id="h-vocals">Vocals</h2>
             <ul class="contact-list">
-                <li><i>></i> <span>English (Professional)</span></li>
-                <li><i>></i> <span>Mandarin (Native)</span></li>
-                <li><i>></i> <span>Cantonese (Fluent)</span></li>
+                <li><i>></i> <span id="t-lang1">English (Professional)</span></li>
+                <li><i>></i> <span id="t-lang2">Mandarin (Native)</span></li>
+                <li><i>></i> <span id="t-lang3">Cantonese (Fluent)</span></li>
             </ul>
         </div>
     </aside>
 
     <!-- RIGHT COLUMN -->
     <main class="main-content">
-        <!-- Rotating background orbits with sparse satellites -->
-        <div class="main-orbit mo-1">
-            <!-- Main satellite on the bright leading edge -->
-            <div class="bg-satellite" style="top: 50%; left: -4px; transform: translateY(-50%) rotate(90deg);"></div>
-            <!-- Distant faint satellite on the opposite side -->
-            <div class="bg-satellite" style="top: 50%; right: -4px; transform: translateY(-50%) rotate(90deg); opacity: 0.15;"></div>
-        </div>
-        <div class="main-orbit mo-2">
-            <!-- Main satellite on the bright leading edge -->
-            <div class="bg-satellite" style="bottom: -4px; left: 50%; transform: translateX(-50%);"></div>
-            <!-- Distant faint satellite on the opposite side -->
-            <div class="bg-satellite" style="top: -4px; left: 50%; transform: translateX(-50%); opacity: 0.15;"></div>
-        </div>
-        
-        <h2 class="section-header">Operational Experience</h2>
-        
+        <h2 class="section-header" id="h-experience">Operational Experience</h2>
         <div class="timeline">
             
             <!-- Job 1 -->
             <div class="timeline-item">
                 <div class="job-header">
-                    <div class="company">Zhejiang Geespace Technology Co., Ltd.</div>
-                    <div class="job-date">SEP 2024 – PRESENT</div>
+                    <div class="company" id="t-j1-comp">Zhejiang Geespace Technology Co., Ltd.</div>
+                    <div class="job-date" id="t-j1-date">SEP 2024 – PRESENT</div>
                 </div>
-                <div class="role">Satellite Communication System Engineer</div>
+                <div class="role" id="t-j1-role">Satellite Communication System Engineer</div>
                 <ul class="job-details">
-                    <li><strong>Communication System Decoupling & Architecture:</strong> Spearheaded end-to-end protocol stack design utilizing <strong>NR NTN</strong> and <strong>CCSDS</strong> frameworks. Defined clear hardware/software decoupled interfaces at the requirement phase, significantly reducing downstream integration friction and costly RTL re-synthesis cycles.</li>
-                    <li><strong>Orbit Control & Coverage:</strong> Conducted constellation coverage analysis via <strong>STK</strong>. Managed satellite operation cycles, ephemeris calculations, and orbital prediction/extrapolation (SGP4, HPOP).</li>
-                    <li><strong>Cybersecurity Architecture:</strong> Architected data security algorithms (authentication, encryption) and secure carriers (USIM/eSIM COS systems). Formulated remote OTA specifications and key management strategies.</li>
-                    <li><strong>Space‑terrestrial integrated network:</strong> Led the design of the <strong>interworking platform</strong>, implementing protocol conversion.Promoted network convergence across services, operation, security, network management, and terminals.Collaborated with China Unicom Zhejiang to drive the scheme into commercial deployment.</li>
-                    <li><strong>Cross-functional PMP Leadership:</strong> Steered the full project lifecycle as a PMP-certified manager. Mastered scope management to effectively prevent requirement creep, acting as the crucial buffer between aggressive client demands and R&D execution limits.</li>
+                    <li id="t-j1-d1"><strong>Communication System Decoupling & Architecture:</strong> Spearheaded <strong>end-to-end protocol stack design</strong> utilizing NR NTN, IoT NTN (user links), and CCSDS (feeder links) frameworks. Proficient in 3GPP <strong>Access Stratum protocols</strong> (PHY RF/IF/Baseband, MAC, RLC, PDCP). Conducted MATLAB modeling for <strong>phased-array antennas</strong> to evaluate beamforming algorithms (phase/amplitude weighting, channel calibration) and KPIs (EIRP, G/T, SSL, EVM). Familiar with <strong>beam planning</strong> schemes (signaling + traffic beams, beam hopping). Experienced in <strong>Direct-to-Cell (D2C)</strong> satellite design, evaluating <strong>time/frequency offset pre-compensation</strong> strategies, conducting full <strong>link budget</strong> calculations, and breaking down specifications for subsystem R&D.</li>
+                    <li id="t-j1-d2"><strong>Orbit Control & Coverage:</strong> Utilized <strong>STK</strong> for comprehensive constellation coverage analysis (e.g., coverage duration, revisit intervals, simultaneous visible satellites). <strong>Managed satellite</strong> operation cycles, ephemeris calculations, and orbital prediction/extrapolation (SGP4, HPOP models). Proficient in MATLAB & STK <strong>co-simulation</strong> to output satellite tracking and task planning algorithms, evaluating optimal real-time coverage strategies.</li>
+                    <li id="t-j1-d3"><strong>Cybersecurity Architecture:</strong> Independently architected <strong>data security</strong> algorithm systems (authentication, encryption) and secure carriers (USIM/eSIM COS). Implemented GSMA SGP.22 <strong>Remote OTA</strong> provisioning and key lifecycle management strategies. Familiar with unified authentication and encryption/decryption logic (GBA procedures, 5G AKA, key derivation). Leveraged <strong>TMN standards</strong> and Space-Terrestrial Integrated Network architecture to design the company's O&M system.</li>
+                    <li id="t-j1-d4"><strong>Space-Terrestrial Integrated Network:</strong> Led the design of the interworking platform, implementing fundamental <strong>protocol conversion</strong> and <strong>routing translation</strong>. Promoted comprehensive network convergence across business, operations, security, network management, and terminals. Collaborated with China Unicom Zhejiang and Unicom Research Institute to successfully drive the scheme into <strong>commercial deployment</strong>.</li>
+                    <li id="t-j1-d5"><strong>Cross-functional PMP Leadership:</strong> As a <strong>PMP-certified</strong> project manager, steered <strong>full project lifecycle management</strong>, guiding the team through design, bidding, R&D, final delivery, and handover to operations. <strong>Led communication with external vendors</strong>, reviewing proposals and tracking R&D progress. Mastered <strong>scope, schedule, and cost management</strong> to prevent requirement creep, accurately identifying true client needs, and acting as a crucial buffer between aggressive demands and R&D execution limits. Conducted regular reports and <strong>stakeholder management</strong> to align expectations. Conducted <strong>industry research</strong> on supply chain partners and regularly participated in industry standard committees (holding a CCSA <strong>Standardization Personnel Training Certificate</strong>).</li>
                 </ul>
             </div>
 
             <!-- Job 2 -->
             <div class="timeline-item">
                 <div class="job-header">
-                    <div class="company">Shanghai Jushri Technologies, INC.</div>
-                    <div class="job-date">SEP 2021 – SEP 2024</div>
+                    <div class="company" id="t-j2-comp">Shanghai Jushri Technologies, INC.</div>
+                    <div class="job-date" id="t-j2-date">SEP 2021 – SEP 2024</div>
                 </div>
-                <div class="role">DSP Physical Layer (PHY) Dev Engineer</div>
+                <div class="role" id="t-j2-role">DSP Physical Layer (PHY) Dev Engineer</div>
                 <ul class="job-details">
-                    <li><strong>Baseband Algorithms:</strong> Optimized DFT channel estimation (mirrored DFT to mitigate RB edge attenuation) and MMSE estimation (Wiener filter coefficients). Implemented MRC equalization and AGC compensation.</li>
-                    <li><strong>Decoding & DFE:</strong> Developed Incremental Redundancy HARQ (LLR merging) and soft-implemented PUSCH RM decoding to replace missing chip firmware. Conducted DFE fixed-point simulations and designed LFSR multi-bit CRC24.</li>
-                    <li><strong>DSP Porting (Localization):</strong> Ported legacy baseband code to domestic DSP <strong>FT6678</strong>. Maintained PHY channel logic (PUSCH, PUCCH) on TI <strong>DSP 6670/6678</strong>. Developed AMC, dynamic scheduling, and zero-copy reporting.</li>
-                    <li><strong>SoC & IP Integration:</strong> Mastered <strong>CEVA XC4500</strong> DSP architecture. Successfully ported legacy baseband codes to domestic DSPs, overcoming complex system-level integration bottlenecks (e.g., memory mapping, multi-core synchronization) during soft/firm IP deployments.</li>
-                    <li><strong>Hardware Debugging & Verification:</strong> Utilized Vivado Integrated Logic Analyzer (ILA) to insert hardware probes and configure complex trigger conditions. Captured real-time on-chip signals for rapid root-cause analysis of timing and logic bugs, effectively bridging the gap between RTL design and physical netlist implementation.</li>
+                    <li id="t-j2-d1"><strong>Baseband Algorithms:</strong> Proficient in <strong>PHY channels</strong> (PDCCH, PDSCH, PUSCH, PUCCH, PRACH) and <strong>standard procedures</strong> (cell search, synchronization, random access, measurement). Optimized DFT <strong>channel estimation</strong> (mirrored DFT to mitigate RB edge attenuation) and MMSE estimation (Wiener filter coefficients). Implemented <strong>MRC equalization</strong> and <strong>AGC compensation</strong>. Developed Incremental Redundancy <strong>HARQ</strong> (LLR merging) and soft-implemented <strong>PUSCH RM decoding</strong> to replace missing chip firmware. Led fixed-point simulations and LFSR multi-bit CRC24 algorithm design.</li>
+                    <li id="t-j2-d2"><strong>DSP Porting (Localization):</strong> Successfully ported baseband code to domestic <strong>FT6678</strong> DSP platform. Maintained PHY channel logic (PUSCH, PUCCH) on TI <strong>DSP 6670/6678</strong>. Developed AMC, dynamic scheduling, and zero-copy reporting modules. Spearheaded and maintained DSP <strong>memory management, timing control, and process/thread scheduling</strong>.</li>
+                    <li id="t-j2-d3"><strong>SoC & IP Integration:</strong> Familiar with <strong>CEVA XC4500</strong> vector DSP architecture. Overcame complex system-level integration bottlenecks (e.g., memory mapping, multi-core synchronization) during soft/firm IP deployments. Configured IP cores (FFT, Convolution modules) and encapsulated API calling interfaces.</li>
+                    <li id="t-j2-d4"><strong>Hardware Debugging & Verification:</strong> Utilized Vivado Integrated Logic Analyzer (ILA) to insert hardware probes and configure complex trigger conditions. Captured real-time on-chip signals for rapid root-cause analysis of timing and logic bugs, effectively bridging the gap between RTL design and physical netlist implementation.</li>
                 </ul>
             </div>
 
             <!-- Job 3 -->
             <div class="timeline-item">
                 <div class="job-header">
-                    <div class="company">CSSC 716 Research Institute</div>
-                    <div class="job-date">AUG 2020 – SEP 2021</div>
+                    <div class="company" id="t-j3-comp">CSSC 716 Research Institute</div>
+                    <div class="job-date" id="t-j3-date">AUG 2020 – SEP 2021</div>
                 </div>
-                <div class="role">Communication Project Manager</div>
+                <div class="role" id="t-j3-role">Communication Project Manager</div>
                 <ul class="job-details">
-                    <li><strong>5G Base Station R&D:</strong> Collaborated with the University of Surrey to track LDPC off-loading development. Conducted functional/performance testing on optimized code deliveries.</li>
-                    <li><strong>System Deployment:</strong> Built OpenAirInterface (OAI) terminal environments integrated with proprietary base stations to execute comprehensive performance evaluations.</li>
+                    <li id="t-j3-d1"><strong>5G Base Station R&D:</strong> Collaborated with the University of Surrey to track LDPC off-loading development. Conducted functional/performance testing on optimized code deliveries.</li>
+                    <li id="t-j3-d2"><strong>System Deployment:</strong> Built OpenAirInterface (OAI) terminal environments integrated with proprietary base stations to execute comprehensive performance evaluations.</li>
                 </ul>
             </div>
 
             <!-- Job 4 -->
             <div class="timeline-item">
                 <div class="job-header">
-                    <div class="company">Newcastle University 4G R&D Team</div>
-                    <div class="job-date">SEP 2017 – JUN 2019</div>
+                    <div class="company" id="t-j4-comp">Newcastle University 4G R&D Team</div>
+                    <div class="job-date" id="t-j4-date">SEP 2017 – JUN 2019</div>
                 </div>
-                <div class="role">Communication Engineer</div>
+                <div class="role" id="t-j4-role">Communication Engineer</div>
                 <ul class="job-details">
-                    <li><strong>DSP & Baseband:</strong> Programmed DSP receivers encompassing signal calibration, preamble detection, DPSK coherent/non-coherent demodulation, and symbol synchronization.</li>
-                    <li><strong>Simulation:</strong> Developed MATLAB models for Convolutional/Hamming codes over AWGN channels. Simulated 4G LTE downlink PDSCH (L1-L3) utilizing QAM and OFDM modulation.</li>
+                    <li id="t-j4-d1"><strong>DSP & Baseband:</strong> Programmed DSP receivers encompassing signal calibration, preamble detection, DPSK coherent/non-coherent demodulation, and symbol synchronization.</li>
+                    <li id="t-j4-d2"><strong>Simulation:</strong> Developed MATLAB models for Convolutional/Hamming codes over AWGN channels. Simulated 4G LTE downlink PDSCH (L1-L3) utilizing QAM and OFDM modulation.</li>
                 </ul>
             </div>
 
@@ -880,35 +613,196 @@
 </div>
 
 <!-- ==========================================
-     JavaScript: 交互与动画逻辑 (3D 迎面飞梭星空)
+     JavaScript: 交互与多语言数据引擎
      ========================================== -->
 <script>
+    // --- 多语言数据字典 (i18n Data Dictionary) ---
+    const i18n = {
+        en: {
+            "t-name": "Zili (Keith) Feng",
+            "t-job-title": "SYSTEMS ARCHITECT & PMP",
+            "h-profile": "Profile",
+            "t-profile-text": "PMP-certified Systems Architect with deep expertise spanning from baseband physical layer (PHY) algorithms and DSP implementations to complex end-to-end communication protocols. Proven track record in orchestrating networks, encompassing satellite constellation architecture and orbital dynamics. Possesses a unique ability to bridge the gap between high-level system decoupling and low-level hardware realities. Understands the pain points of EDA workflows (from RTL synthesis to netlist debugging) and complex SoC/IP integration. Passionate about exploring AI-Agent automated workflows. In navigating highly complex hardware-software delivery pipelines, my core principle is to drive proactive risk management by defining strict system boundaries. I believe in the power of teamwork to prevent scope creep and ensure seamless delivery in cross-functional environments.",
+            "h-personal": "Personal Info",
+            "t-phone": "+86 150-2142-1794",
+            "t-email": "zilifeng_jari@163.com",
+            "t-gender-age": "Male | Feb 1997",
+            "h-academy": "Academy",
+            "t-edu1-deg": "M.Sc. Comm & Signal Processing",
+            "t-edu1-sch": "Newcastle University, UK",
+            "t-edu1-meta": "Sep 2018 - Jan 2020 | QS: Top 150<br>Grade: Distinction (1:1 class)",
+            "t-edu2-deg": "B.Eng. Electronic Comm Eng",
+            "t-edu2-sch": "Newcastle University, UK",
+            "t-edu2-meta": "Sep 2014 - Jun 2018 | QS: Top 150<br>Grade: Upper Second (2:1 class)",
+            "h-tech": "Tech HUD",
+            "t-skill1": "HW/SW Decoupling",
+            "t-skill2": "Netlist & ILA Debug",
+            "t-skill3": "Tcl Automation",
+            "t-skill4": "Cybersecurity",
+            "t-skill5": "Interworing Platform",
+            "t-skill6": "PMP Certified",
+            "h-vocals": "Vocals",
+            "t-lang1": "English (Professional)",
+            "t-lang2": "Mandarin (Native)",
+            "t-lang3": "Cantonese (Fluent)",
+            "h-experience": "Operational Experience",
+            
+            "t-j1-comp": "Zhejiang Geespace Technology Co., Ltd.",
+            "t-j1-date": "SEP 2024 – PRESENT",
+            "t-j1-role": "Satellite Communication System Engineer",
+            "t-j1-d1": "<strong>Communication System Decoupling & Architecture:</strong> Spearheaded <strong>end-to-end protocol stack design</strong> utilizing NR NTN, IoT NTN (user links), and CCSDS (feeder links) frameworks. Proficient in 3GPP <strong>Access Stratum protocols</strong> (PHY RF/IF/Baseband, MAC, RLC, PDCP). Conducted MATLAB modeling for <strong>phased-array antennas</strong> to evaluate beamforming algorithms (phase/amplitude weighting, channel calibration) and KPIs (EIRP, G/T, SSL, EVM). Familiar with <strong>beam planning</strong> schemes (signaling + traffic beams, beam hopping). Experienced in <strong>Direct-to-Cell (D2C)</strong> satellite design, evaluating <strong>time/frequency offset pre-compensation</strong> strategies, conducting full <strong>link budget</strong> calculations, and breaking down specifications for subsystem R&D.",
+            "t-j1-d2": "<strong>Orbit Control & Coverage:</strong> Utilized <strong>STK</strong> for comprehensive constellation coverage analysis (e.g., coverage duration, revisit intervals, simultaneous visible satellites). <strong>Managed satellite</strong> operation cycles, ephemeris calculations, and orbital prediction/extrapolation (SGP4, HPOP models). Proficient in MATLAB & STK <strong>co-simulation</strong> to output satellite tracking and task planning algorithms, evaluating optimal real-time coverage strategies.",
+            "t-j1-d3": "<strong>Cybersecurity Architecture:</strong> Independently architected <strong>data security</strong> algorithm systems (authentication, encryption) and secure carriers (USIM/eSIM COS). Implemented GSMA SGP.22 <strong>Remote OTA</strong> provisioning and key lifecycle management strategies. Familiar with unified authentication and encryption/decryption logic (GBA procedures, 5G AKA, key derivation). Leveraged <strong>TMN standards</strong> and Space-Terrestrial Integrated Network architecture to design the company's O&M system.",
+            "t-j1-d4": "<strong>Space-Terrestrial Integrated Network:</strong> Led the design of the interworking platform, implementing fundamental <strong>protocol conversion</strong> and <strong>routing translation</strong>. Promoted comprehensive network convergence across business, operations, security, network management, and terminals. Collaborated with China Unicom Zhejiang and Unicom Research Institute to successfully drive the scheme into <strong>commercial deployment</strong>.",
+            "t-j1-d5": "<strong>Cross-functional PMP Leadership:</strong> As a <strong>PMP-certified</strong> project manager, steered <strong>full project lifecycle management</strong>, guiding the team through design, bidding, R&D, final delivery, and handover to operations. <strong>Led communication with external vendors</strong>, reviewing proposals and tracking R&D progress. Mastered <strong>scope, schedule, and cost management</strong> to prevent requirement creep, accurately identifying true client needs, and acting as a crucial buffer between aggressive demands and R&D execution limits. Conducted regular reports and <strong>stakeholder management</strong> to align expectations. Conducted <strong>industry research</strong> on supply chain partners and regularly participated in industry standard committees (holding a CCSA <strong>Standardization Personnel Training Certificate</strong>).",
+
+            "t-j2-comp": "Shanghai Jushri Technologies, INC.",
+            "t-j2-date": "SEP 2021 – SEP 2024",
+            "t-j2-role": "DSP Physical Layer (PHY) Dev Engineer",
+            "t-j2-d1": "<strong>Baseband Algorithms:</strong> Proficient in <strong>PHY channels</strong> (PDCCH, PDSCH, PUSCH, PUCCH, PRACH) and <strong>standard procedures</strong> (cell search, synchronization, random access, measurement). Optimized DFT <strong>channel estimation</strong> (mirrored DFT to mitigate RB edge attenuation) and MMSE estimation (Wiener filter coefficients). Implemented <strong>MRC equalization</strong> and <strong>AGC compensation</strong>. Developed Incremental Redundancy <strong>HARQ</strong> (LLR merging) and soft-implemented <strong>PUSCH RM decoding</strong> to replace missing chip firmware. Led fixed-point simulations and LFSR multi-bit CRC24 algorithm design.",
+            "t-j2-d2": "<strong>DSP Porting (Localization):</strong> Successfully ported baseband code to domestic <strong>FT6678</strong> DSP platform. Maintained PHY channel logic (PUSCH, PUCCH) on TI <strong>DSP 6670/6678</strong>. Developed AMC, dynamic scheduling, and zero-copy reporting modules. Spearheaded and maintained DSP <strong>memory management, timing control, and process/thread scheduling</strong>.",
+            "t-j2-d3": "<strong>SoC & IP Integration:</strong> Familiar with <strong>CEVA XC4500</strong> vector DSP architecture. Overcame complex system-level integration bottlenecks (e.g., memory mapping, multi-core synchronization) during soft/firm IP deployments. Configured IP cores (FFT, Convolution modules) and encapsulated API calling interfaces.",
+            "t-j2-d4": "<strong>Hardware Debugging & Verification:</strong> Utilized Vivado Integrated Logic Analyzer (ILA) to insert hardware probes and configure complex trigger conditions. Captured real-time on-chip signals for rapid root-cause analysis of timing and logic bugs, effectively bridging the gap between RTL design and physical netlist implementation.",
+
+            "t-j3-comp": "CSSC 716 Research Institute",
+            "t-j3-date": "AUG 2020 – SEP 2021",
+            "t-j3-role": "Communication Project Manager",
+            "t-j3-d1": "<strong>5G Base Station R&D:</strong> Collaborated with the University of Surrey to track LDPC off-loading development. Conducted functional/performance testing on optimized code deliveries.",
+            "t-j3-d2": "<strong>System Deployment:</strong> Built OpenAirInterface (OAI) terminal environments integrated with proprietary base stations to execute comprehensive performance evaluations.",
+
+            "t-j4-comp": "Newcastle University 4G R&D Team",
+            "t-j4-date": "SEP 2017 – JUN 2019",
+            "t-j4-role": "Communication Engineer",
+            "t-j4-d1": "<strong>DSP & Baseband:</strong> Programmed DSP receivers encompassing signal calibration, preamble detection, DPSK coherent/non-coherent demodulation, and symbol synchronization.",
+            "t-j4-d2": "<strong>Simulation:</strong> Developed MATLAB models for Convolutional/Hamming codes over AWGN channels. Simulated 4G LTE downlink PDSCH (L1-L3) utilizing QAM and OFDM modulation.",
+            
+            "btn-view": "👁️ View Space",
+            "btn-show": "📄 Show Resume"
+        },
+        zh: {
+            "t-name": "冯子力 (Keith)",
+            "t-job-title": "系统架构师 & PMP",
+            "h-profile": "摘要",
+            "t-profile-text": "拥有PMP认证的系统架构师，在基带物理层(PHY)算法、DSP实现及端到端复杂通信协议领域具有深厚的技术积淀。具备卫星星座架构与轨道动力学方面实践经验。能够精准衔接宏观系统的软硬件解耦与底层硬件的物理实现。深刻理解EDA工作流痛点（从RTL综合到网表级ILA调试）及复杂SoC/IP集成的技术壁垒。对AI-Agent自动化工作流充满热情。在驾驭极度复杂的软硬件交付管线时，通过定义严谨的系统边界来驱动前置风险管理。擅长在跨部门协作中运用PMP方法论遏制需求蔓延，确保项目按需交付。",
+            "h-personal": "个人信息",
+            "t-phone": "+86 150-2142-1794",
+            "t-email": "zilifeng_jari@163.com",
+            "t-gender-age": "男 | 1997年2月",
+            "h-academy": "教育背景",
+            "t-edu1-deg": "通信与信号处理 理学硕士",
+            "t-edu1-sch": "纽卡斯尔大学 (英国)",
+            "t-edu1-meta": "2018年9月 - 2020年1月 | QS世界排名: Top 150<br>成绩: Distinction (一等荣誉)",
+            "t-edu2-deg": "电子通信工程 工学学士",
+            "t-edu2-sch": "纽卡斯尔大学 (英国)",
+            "t-edu2-meta": "2014年9月 - 2018年6月 | QS世界排名: Top 150<br>成绩: Upper Second (二等一荣誉)",
+            "h-tech": "技术栈 (Tech HUD)",
+            "t-skill1": "软硬件解耦架构",
+            "t-skill2": "网表级 ILA 探针调试",
+            "t-skill3": "Tcl 自动化脚本",
+            "t-skill4": "信息安全架构",
+            "t-skill5": "天地融合互通平台",
+            "t-skill6": "PMP 项目管理认证",
+            "h-vocals": "语言能力",
+            "t-lang1": "英语 (可作为工作语言)",
+            "t-lang2": "普通话 (母语)",
+            "t-lang3": "粤语 (流利)",
+            "h-experience": "核心实战经验",
+            
+            "t-j1-comp": "浙江时空道宇科技有限公司",
+            "t-j1-date": "2024年9月 – 至今",
+            "t-j1-role": "卫星通信系统工程师 / 架构师",
+            "t-j1-d1": "<strong>通信系统解耦与架构设计：</strong> 主导基于 NR NTN、IoT NTN（用户链路） 和CCSDS（馈电链路） 框架的<strong>端到端协议栈设计</strong>。精通3GPP<strong>接入层协议</strong>，主要包括PHY 射频、中频、基带，MAC、RLC、PDCP。对<strong>相控阵天线</strong>进行MATLAB仿真建模，评估波束成形算法（相位加权、幅度加权、通道校准等）与关键性能指标（EIRP、G/T、SSL、EVM）；熟悉<strong>波束规划</strong>算法与方案，如信令波束+业务波束、跳波束等。熟悉<strong>手机直连</strong>卫星设计方案，评估<strong>时频偏预补偿</strong>策略，完成全链路<strong>链路预算</strong>计算，并完成各子系统研制<strong>指标分解</strong>。",
+            "t-j1-d2": "<strong>轨道控制与覆盖分析：</strong> 熟练使用 <strong>STK</strong> 工具进行星座覆盖分析，如覆盖时长、重仿间隔、同时可见卫星数等。<strong>管理卫星</strong>运行周期、星历计算及轨道预测与外推推演（SGP4, HPOP 模型）。熟悉使用MATLAB+STK<strong>联合仿真</strong>工具，输出卫星跟踪任务规划算法，评估实时覆盖最优策略。",
+            "t-j1-d3": "<strong>信息安全架构搭建：</strong> 独立架构<strong>数据安全</strong>算法（鉴权、加密）体系及安全载体（USIM/eSIM COS 系统）。实现GSMA SGP.22<strong>远程 OTA</strong>规范及密钥生命周期管理策略。熟悉联合鉴权及加解密逻辑方案，GBA流程、5G AKA、密钥派生等。熟悉<strong>TMN标准</strong>，结合星地一体化网络架构，设计公司运营运维体系。",
+            "t-j1-d4": "<strong>天地融合异构网络平台：</strong> 牵头设计互联互通平台，实现底层<strong>协议转换</strong>、<strong>路由转网</strong>等功能。推动业务、运营、安全、网管及终端侧的全面网络融合，并联合浙江联通、联通研究院等成功推进该方案的<strong>商业化落地</strong>。",
+            "t-j1-d5": "<strong>跨部门 PMP 项目统筹：</strong> 作为获得<strong>PMP 认证</strong>的项目经理，主导项目<strong>全生命周期管理</strong>，协助团队完成项目设计、招标、R&D、最终交付及转交运营流。<strong>主导与外协沟通</strong>，讨论并评审方案，主导研发流程与跟踪研发进度。精通<strong>范围、进度与成本管理</strong>以有效防止需求蔓延，定位并分析客户真实需求，在激进的客户需求与研发团队的执行边界之间扮演关键的缓冲与协调角色。定期跟各干系人展开工作汇报，<strong>管理干系人</strong>需求与期望，确保各方信息同步。对产业链合作伙伴展开<strong>调研工作</strong>，定期拜访与参加相应的行业标准会（并持有CCSA<strong>标准化人员培训证书</strong>）。",
+
+            "t-j2-comp": "上海瀚讯信息股份有限公司",
+            "t-j2-date": "2021年9月 – 2024年9月",
+            "t-j2-role": "DSP 物理层 (PHY) 研发工程师",
+            "t-j2-d1": "<strong>基带核心算法开发：</strong> 精通<strong>物理层各信道</strong>（PDCCH、PDSCH、PUSCH、PUCCH、PRACH）与<strong>标准流程</strong>（扫频、同步、接入、测量等）。深度优化 DFT <strong>信道估计</strong>（利用镜像 DFT 显著缓解 RB 边缘衰减效应）及 MMSE 估计（维纳滤波器系数计算）。实现 <strong>MRC 均衡</strong>与 <strong>AGC 补偿</strong>算法。开发增量冗余 <strong>HARQ</strong>（LLR 合并技术），并以软实现方式完成 <strong>PUSCH RM 解码</strong>，成功规避芯片硬件固件缺失问题。主导定点仿真及 LFSR 多比特 CRC24等算法设计。",
+            "t-j2-d2": "<strong>DSP 代码国产化移植：</strong> 成功将基带代码移植至国产 <strong>FT6678</strong> DSP 平台。维护 TI <strong>DSP 6670/6678</strong> 上的 PHY 信道逻辑（PUSCH, PUCCH）。主导开发 AMC 机制、动态调度与零拷贝(Zero-copy)上报模块。主导并维护DSP模块<strong>内存管理、时序管理、进程/线程管理</strong>。",
+            "t-j2-d3": "<strong>SoC 与 IP 集成 (CEVA)：</strong> 熟悉 <strong>CEVA XC4500</strong> 矢量 DSP 架构。在软/硬 IP 部署过程中，成功攻克包括内存映射、多核同步在内的复杂系统级集成瓶颈。完成IP核（FFT模块、卷积模块等）配置与调用接口封装。",
+            "t-j2-d4": "<strong>底层硬件调试与验证：</strong> 熟练运用 Vivado Integrated Logic Analyzer (ILA) 插入硬件探针并配置复杂的触发条件。捕获实时片上信号，快速定位并根除时序与逻辑缺陷，实质性打通了 RTL 设计与物理网表级实现之间的壁垒。",
+
+            "t-j3-comp": "中国船舶集团第七一六研究所",
+            "t-j3-date": "2020年8月 – 2021年9月",
+            "t-j3-role": "通信项目经理",
+            "t-j3-d1": "<strong>5G 基站研发推进：</strong> 与英国萨里大学(University of Surrey)深度合作，跟进 LDPC 卸载加速模块的研发进度。对交付的优化代码执行严格的功能与性能测试验收。",
+            "t-j3-d2": "<strong>系统集成与部署：</strong> 搭建基于 OpenAirInterface (OAI) 的终端测试环境，并将其与自研基站无缝集成，执行全面的端到端性能评估。",
+
+            "t-j4-comp": "纽卡斯尔大学 4G 研发团队",
+            "t-j4-date": "2017年9月 – 2019年6月",
+            "t-j4-role": "通信工程师",
+            "t-j4-d1": "<strong>DSP 与基带处理：</strong> 编程实现 DSP 接收机系统，涵盖信号校准、前导码检测、DPSK 相干/非相干解调以及符号同步算法。",
+            "t-j4-d2": "<strong>链路仿真：</strong> 开发 AWGN 信道下的卷积码/汉明码 MATLAB 仿真模型。成功搭建运用 QAM 与 OFDM 调制的 4G LTE 下行 PDSCH（L1-L3层）物理仿真链路。",
+            
+            "btn-view": "👁️ 观赏星空",
+            "btn-show": "📄 显示简历"
+        }
+    };
+
+    let currentLang = 'en';
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'en' ? 'zh' : 'en';
+        
+        // 更新按钮文字高亮状态
+        const langEn = document.getElementById('lang-en');
+        const langZh = document.getElementById('lang-zh');
+        if(currentLang === 'en'){
+            langEn.classList.add('active-lang');
+            langZh.classList.remove('active-lang');
+        } else {
+            langZh.classList.add('active-lang');
+            langEn.classList.remove('active-lang');
+        }
+
+        // 极速遍历字典更新DOM文本
+        const dict = i18n[currentLang];
+        for (const [id, text] of Object.entries(dict)) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.innerHTML = text;
+            }
+        }
+        
+        // 更新底部 View Space 按钮的文字，取决于简历是否被隐藏
+        const toggleBtn = document.getElementById('toggle-view-btn');
+        if (isResumeHidden) {
+            toggleBtn.innerHTML = dict['btn-show'];
+        } else {
+            toggleBtn.innerHTML = dict['btn-view'];
+        }
+    }
+
     // --- 简历隐藏/显示切换逻辑 ---
     const toggleBtn = document.getElementById('toggle-view-btn');
     const resumeContainer = document.getElementById('resume-container');
     let isResumeHidden = false;
 
-    toggleBtn.addEventListener('click', () => {
+    function toggleView() {
         isResumeHidden = !isResumeHidden;
+        const dict = i18n[currentLang];
         if (isResumeHidden) {
             resumeContainer.classList.add('hidden');
-            toggleBtn.innerHTML = '📄 Show Resume';
+            toggleBtn.innerHTML = dict['btn-show'];
             document.body.classList.add('viewing-space');
         } else {
             resumeContainer.classList.remove('hidden');
-            toggleBtn.innerHTML = '👁️ View Space';
+            toggleBtn.innerHTML = dict['btn-view'];
             document.body.classList.remove('viewing-space');
         }
-    });
+    }
 
-    // --- 3D 太空遨游粒子引擎 ---
+    // --- 3D 太空遨游粒子引擎 (迎面飞梭) ---
     const canvas = document.getElementById('starfield-canvas');
     const ctx = canvas.getContext('2d');
     
     let width, height;
     let stars = [];
-    const numStars = 400;      // 宇宙中的星星数量
-    const speed = 1.2;         // 巡航速度 (飞船前进速度)
+    const numStars = 400;      
+    const speed = 1.2;         
     
     // 鼠标追踪，用于改变视角方向
     let mouseX = window.innerWidth / 2;
@@ -919,7 +813,6 @@
         mouseY = e.clientY;
     });
 
-    // 触摸屏支持
     window.addEventListener('touchmove', (e) => {
         if(e.touches.length > 0) {
             mouseX = e.touches[0].clientX;
@@ -936,18 +829,14 @@
 
     class Star {
         constructor() {
-            // 初始化星辰在 3D 空间中的随机位置
             this.x = (Math.random() - 0.5) * width * 2;
             this.y = (Math.random() - 0.5) * height * 2;
             this.z = Math.random() * width;
-            this.pz = this.z; // 记录上一帧的 Z 轴位置，用于画出光速拖尾
+            this.pz = this.z; 
         }
 
         update() {
-            // 星辰不断向屏幕靠近 (Z轴减小)
             this.z -= speed;
-            
-            // 如果星星飞过了屏幕 (Z轴小于1)，就让它在最远处重新生成
             if (this.z < 1) {
                 this.z = width;
                 this.x = (Math.random() - 0.5) * width * 2;
@@ -957,30 +846,24 @@
         }
 
         draw() {
-            // 视角中心偏移算法：根据鼠标位置稍微改变中心消影点
             let cx = width / 2 + (mouseX - width / 2) * 0.05;
             let cy = height / 2 + (mouseY - height / 2) * 0.05;
 
-            // 将 3D 坐标投影到 2D 屏幕上
             let sx = (this.x / this.z) * (width / 2) + cx;
             let sy = (this.y / this.z) * (height / 2) + cy;
             
-            // 计算上一帧在屏幕上的位置
             let px = (this.x / this.pz) * (width / 2) + cx;
             let py = (this.y / this.pz) * (height / 2) + cy;
             
-            this.pz = this.z; // 更新历史Z轴
+            this.pz = this.z; 
 
-            // 星星越近，尺寸越大，亮度越高
             let size = (1 - this.z / width) * 2;
             let alpha = 1 - this.z / width;
 
-            // 绘制带有拖尾效果的流星线条
             ctx.beginPath();
             ctx.moveTo(px, py);
             ctx.lineTo(sx, sy);
             ctx.lineWidth = size;
-            // 使用你的霓虹主题色（浅蓝cyan）
             ctx.strokeStyle = `rgba(0, 240, 255, ${alpha})`;
             ctx.stroke();
         }
@@ -994,7 +877,6 @@
     }
 
     function animate() {
-        // 清空画布，不使用全黑，保留透明度以透出底层的真实银河图
         ctx.clearRect(0, 0, width, height);
         
         stars.forEach(star => {
